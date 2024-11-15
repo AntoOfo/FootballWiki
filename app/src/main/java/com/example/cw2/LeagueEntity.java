@@ -11,6 +11,13 @@ public class LeagueEntity {
     private String strSport;
     private String strLeagueAlternate;
 
+    public LeagueEntity(int idLeague, String strLeague, String strSport, String strLeagueAlternate) {
+        this.idLeague = idLeague;
+        this.strLeague = strLeague;
+        this.strSport = strSport;
+        this.strLeagueAlternate = strLeagueAlternate;
+    }
+
     // get/setters
     public int getIdLeague() {
         return idLeague;
