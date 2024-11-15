@@ -66,5 +66,12 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(new Intent(MainActivity.this, ClubsByLeague_Activity.class));
             }
         });
+
+        searchClubBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this, SearchClubs_Activity.class));
+            }
+        });
     }
 }

@@ -14,4 +14,7 @@ public interface ClubDao {
     @Query("SELECT* FROM ClubTable")
     List<ClubEntity> getAllClubs();
 
+    @Query("SELECT * FROM ClubTable WHERE LOWER(teamName) LIKE LOWER(:query) OR LOWER(leagueId) LIKE LOWER(:query)")
+    List<ClubEntity> searchClubsByName(String query);
+
 }
