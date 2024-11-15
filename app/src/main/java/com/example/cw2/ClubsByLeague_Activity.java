@@ -1,6 +1,7 @@
 package com.example.cw2;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.room.Room;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -8,6 +9,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -18,12 +21,17 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ClubsByLeague_Activity extends AppCompatActivity {
 
     private EditText enterLeagueText;
     private Button retrieveBtn;
     private Button saveClubsBtn;
     private TextView clubLeagueText;
+
+    private List<ClubEntity> clubsList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +55,17 @@ public class ClubsByLeague_Activity extends AppCompatActivity {
                 } else {
                     // Show a message if no league name is entered
                     clubLeagueText.setText("Please enter a league name.");
+                }
+            }
+        });
+
+        saveClubsBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!clubsList.isEmpty()) {
+                    saveClubs(clubsList);  // Save the clubs to the Room database
+                } else {
+                    Toast.makeText(ClubsByLeague_Activity.this, "No clubs to save.", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -97,11 +116,14 @@ public class ClubsByLeague_Activity extends AppCompatActivity {
                 Request.Method.GET, url, null,
                 response -> {
                     try {
-                        // check if array is there
+                        // check if teams array is in response
                         if (response.has("teams")) {
                             JSONArray teamsArray = response.getJSONArray("teams");
                             StringBuilder clubsInfo = new StringBuilder();
 
+                            clubsList.clear();   // clear list for duplicates
+
+                            // go through teams and add them to list
                             for (int i = 0; i < teamsArray.length(); i++) {
                                 JSONObject team = teamsArray.getJSONObject(i);
 
@@ -112,7 +134,18 @@ public class ClubsByLeague_Activity extends AppCompatActivity {
                                 String location = team.getString("strLocation");
                                 String website = team.getString("strWebsite");
 
-                                // Append the team details to the result string
+                                // new entity w properties
+                                ClubEntity club = new ClubEntity();
+                                club.teamName = teamName;
+                                club.teamShort = teamShort;
+                                club.formedYear = formedYear;
+                                club.stadium = stadium;
+                                club.location = location;
+                                club.website = website;
+                                club.leagueId = leagueId;
+
+                                clubsList.add(club);
+
                                 clubsInfo.append("Team Name: ").append(teamName).append("\n")
                                         .append("Short Name: ").append(teamShort).append("\n")
                                         .append("Formed Year: ").append(formedYear).append("\n")
@@ -122,18 +155,40 @@ public class ClubsByLeague_Activity extends AppCompatActivity {
                             }
 
                             clubLeagueText.setText(clubsInfo.toString());
+
                         } else {
                             clubLeagueText.setText("No teams found for this league.");
                         }
                     } catch (Exception e) {
-                        // Handle any JSON parsing errors
-                        clubLeagueText.setText("Error parsing teams data: " + e.getMessage());
+                        clubLeagueText.setText("Problem with finding teams. Try again.");
                     }
                 },
                 error -> {
-                    // Handle any network errors
-                    clubLeagueText.setText("Error fetching teams: " + error.getMessage());
+                    clubLeagueText.setText("Problem with finding teams. Try again.");
                 }
-        ); queue.add(jsonObjectRequest);
+        );
+        queue.add(jsonObjectRequest);
+    }
+
+    private void saveClubs(List<ClubEntity> clubs) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                // Build the database instance
+                ClubDatabase db = Room.databaseBuilder(getApplicationContext(),
+                        ClubDatabase.class, "club-database").build();
+
+                // Insert all clubs into the database
+                db.clubDao().insertAll(clubs);
+
+                // Notify the user after saving in the UI thread
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(ClubsByLeague_Activity.this, "Clubs saved to database!", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        }).start();
     }
 }

@@ -42,10 +42,15 @@
 
     <TextView
         android:id="@+id/clubLeagueText"
-        android:layout_width="376dp"
-        android:layout_height="496dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/saveClubsBtn" />
+        app:layout_constraintTop_toBottomOf="@+id/saveClubsBtn"
+        android:padding="16dp"
+        android:scrollbars="vertical"
+        android:textSize="14sp"
+        android:maxLines="20"
+        android:ellipsize="end" />
 </androidx.constraintlayout.widget.ConstraintLayout>
