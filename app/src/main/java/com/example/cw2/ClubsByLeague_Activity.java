@@ -133,6 +133,8 @@ public class ClubsByLeague_Activity extends AppCompatActivity {
                                 String stadium = team.getString("strStadium");
                                 String location = team.getString("strLocation");
                                 String website = team.getString("strWebsite");
+                                String logoUrl = team.getString("strLogo");
+                                Log.d("Club Logo URL", "Logo URL: " + logoUrl);
 
                                 // new entity w properties
                                 ClubEntity club = new ClubEntity();
@@ -143,6 +145,7 @@ public class ClubsByLeague_Activity extends AppCompatActivity {
                                 club.location = location;
                                 club.website = website;
                                 club.leagueId = leagueId;
+                                club.logoUrl = logoUrl;
 
                                 clubsList.add(club);
 
@@ -151,7 +154,8 @@ public class ClubsByLeague_Activity extends AppCompatActivity {
                                         .append("Formed Year: ").append(formedYear).append("\n")
                                         .append("Stadium: ").append(stadium).append("\n")
                                         .append("Location: ").append(location).append("\n")
-                                        .append("Website: ").append(website).append("\n\n");
+                                        .append("Website: ").append(website).append("\n")
+                                        .append("Logo URL: ").append(logoUrl).append("\n\n");
                             }
 
                             clubLeagueText.setText(clubsInfo.toString());

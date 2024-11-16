@@ -3,18 +3,26 @@ package com.example.cw2;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.room.Room;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.List;
 
 public class SearchClubs_Activity extends AppCompatActivity {
 
     private EditText searchEntry;
     private Button searchBtn;
-    private TextView allDataText;
+    private LinearLayout resultsContainer;
 
     private ClubDatabase db;
 
@@ -25,7 +33,7 @@ public class SearchClubs_Activity extends AppCompatActivity {
 
         searchEntry = findViewById(R.id.searchEntry);
         searchBtn = findViewById(R.id.searchBtn);
-        allDataText = findViewById(R.id.allDataText);
+        resultsContainer = findViewById(R.id.resultsContainer);
 
         db = Room.databaseBuilder(getApplicationContext(),
                 ClubDatabase.class, "club-database").build();
@@ -34,10 +42,11 @@ public class SearchClubs_Activity extends AppCompatActivity {
             String query = searchEntry.getText().toString().trim();
 
             if (!query.isEmpty()) {
+                displayMessage("Searching");
                 // Start search in a background thread
                 new Thread(() -> searchClubs(query)).start();
             } else {
-                allDataText.setText("Please enter a search.");
+                displayMessage("Please enter a search.");
             }
         });
     }
@@ -46,25 +55,79 @@ public class SearchClubs_Activity extends AppCompatActivity {
         // Perform a case-insensitive search and find clubs or leagues with the query
         List<ClubEntity> clubs = db.clubDao().searchClubsByName(query);
 
-        // Display the results on the main thread
         runOnUiThread(() -> {
+            resultsContainer.removeAllViews(); // Clear previous results
             if (clubs.isEmpty()) {
-                allDataText.setText("No clubs found.");
+                displayMessage("No clubs found.");
             } else {
-                StringBuilder results = new StringBuilder();
-
                 for (ClubEntity club : clubs) {
-                    results.append("Club Name: ").append(club.teamName).append("\n")
-                            .append("League: ").append(club.leagueId).append("\n")
-                            .append("Short Name: ").append(club.teamShort).append("\n")
-                            .append("Year Formed: ").append(club.formedYear).append("\n")
-                            .append("Stadium: ").append(club.stadium).append("\n")
-                            .append("Location: ").append(club.location).append("\n")
-                            .append("Website: ").append(club.website).append("\n\n");
+                    addClub(club);
                 }
-
-                allDataText.setText(results.toString());
             }
         });
     }
-}
+
+    private void addClub(ClubEntity club) {
+        // Create ImageView for the logo
+        ImageView logoView = new ImageView(this);
+        LinearLayout.LayoutParams imageParams = new LinearLayout.LayoutParams(200, 200);
+        imageParams.setMargins(0, 0, 0, 16);
+        logoView.setLayoutParams(imageParams);
+
+        // Load the logo (background thread)
+        new Thread(() -> {
+            Bitmap logo = loadImage(club.logoUrl);
+            runOnUiThread(() -> {
+                if (logo != null) {
+                    logoView.setImageBitmap(logo);
+                } else {
+                    logoView.setImageResource(R.drawable.placeholder_img); // Default image
+                }
+            });
+        }).start();
+
+        TextView clubDetails = new TextView(this);
+        clubDetails.setText(
+                "Club Name: " + club.teamName + "\n" +
+                "League: " + club.leagueId + "\n" +
+                "Short Name: " + club.teamShort + "\n" +
+                "Year Formed: " + club.formedYear + "\n" +
+                "Stadium: " + club.stadium + "\n" +
+                "Location: " + club.location + "\n" +
+                "Website: " + club.website
+        );
+        clubDetails.setPadding(16, 16, 16, 16);
+
+        // Add ImageView and TextView to the container
+        resultsContainer.addView(logoView);
+        resultsContainer.addView(clubDetails);
+    }
+
+    private void displayMessage(String message) {
+        resultsContainer.removeAllViews();
+        TextView messageView = new TextView(this);
+        messageView.setText(message);
+        messageView.setPadding(16, 16, 16, 16);
+        resultsContainer.addView(messageView);
+    }
+
+    private Bitmap loadImage(String urlString) {
+
+        if (urlString == null || urlString.isEmpty()) {
+            Log.e("SearchClubs_Activity", "null URL: " + urlString);  // keeps returning null
+            return null;
+        }
+
+        try {
+            URL url = new URL(urlString);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setDoInput(true);
+            connection.connect();
+            InputStream input = connection.getInputStream();
+            return BitmapFactory.decodeStream(input);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+    }
