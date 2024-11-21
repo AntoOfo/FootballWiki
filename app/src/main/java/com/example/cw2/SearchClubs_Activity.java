@@ -1,5 +1,7 @@
 package com.example.cw2;
 
+import static java.security.AccessController.getContext;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.room.Room;
 
@@ -7,6 +9,9 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -14,6 +19,15 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -25,10 +39,10 @@ public class SearchClubs_Activity extends AppCompatActivity {
 
     private EditText searchEntry;
     private Button searchBtn;
-    private ListView clubsListView;
+    private ListView resultsListView;
 
     private List<ClubEntity> clubsList = new ArrayList<>();
-    private ArrayAdapter<String> adapter;
+    private ArrayAdapter<ClubEntity> adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,102 +51,82 @@ public class SearchClubs_Activity extends AppCompatActivity {
 
         searchEntry = findViewById(R.id.searchEntry);
         searchBtn = findViewById(R.id.searchBtn);
-        clubsListView = findViewById(R.id.clubsListView);
+        resultsListView = findViewById(R.id.resultsListView);
 
-        adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1);
+        adapter = new ArrayAdapter<ClubEntity>(this, 0, clubsList) {
+            @Override
+            public View getView(int position, View convertView, ViewGroup parent){
+            if (convertView == null) {
+                LayoutInflater inflater = LayoutInflater.from(getContext());
+                convertView = inflater.inflate(R.layout.item_clubs_result, parent, false);
+            }
 
-        ClubEntity club = clubsList.get(position);
+            ImageView clubLogo = convertView.findViewById(R.id.clubLogo);
+            TextView clubDetails = convertView.findViewById(R.id.clubDetails);
+
+            ClubEntity club = clubsList.get(position);
+            if (club != null) {
+                String details = "ID: " + club.idTeam + "\n" +
+                        "Name: " + club.strTeam + "\n" +
+                        "Short Name: " + club.strTeamShort + "\n" +
+                        "Alternate Names: " + club.strTeamAlternate + "\n" +
+                        "Formed Year: " + club.intFormedYear + "\n" +
+                        "League: " + club.strLeague + "\n" +
+                        "League ID: " + club.idLeague + "\n" +
+                        "Stadium: " + club.strStadium + "\n" +
+                        "Keywords: " + club.strKeywords + "\n" +
+                        "Location: " + club.strLocation + "\n" +
+                        "Stadium Capacity: " + club.intStadiumCapacity + "\n" +
+                        "Website: " + club.strWebsite;
+                clubDetails.setText(details);
+                loadImage(clubLogo, club.strLogo);
+            }
+
+            return convertView;
+        }
+        };
+
+        resultsListView.setAdapter(adapter);
 
         searchBtn.setOnClickListener(v -> {
             String query = searchEntry.getText().toString().trim();
 
             if (!query.isEmpty()) {
-                displayMessage("Searching");
-                // Start search in a background thread
-                new Thread(() -> searchClubs(query)).start();
+                searchClubs(query);
             } else {
-                displayMessage("Please enter a search.");
+                Toast.makeText(this, "Please enter a search term", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
     private void searchClubs(String query) {
-        // Perform a case-insensitive search and find clubs or leagues with the query
-        List<ClubEntity> clubs = db.clubDao().searchClubsByName(query);
-
-        runOnUiThread(() -> {
-            resultsContainer.removeAllViews(); // Clear previous results
-            if (clubs.isEmpty()) {
-                displayMessage("No clubs found.");
-            } else {
-                for (ClubEntity club : clubs) {
-                    addClub(club);
-                }
-            }
-        });
-    }
-
-    private void addClub(ClubEntity club) {
-        // Create ImageView for the logo
-        ImageView logoView = new ImageView(this);
-        LinearLayout.LayoutParams imageParams = new LinearLayout.LayoutParams(200, 200);
-        imageParams.setMargins(0, 0, 0, 16);
-        logoView.setLayoutParams(imageParams);
-
-        // Load the logo (background thread)
         new Thread(() -> {
-            Bitmap logo = loadImage(club.strLogo);
+            ClubDatabase db = Room.databaseBuilder(getApplicationContext(), ClubDatabase.class, "club-database").build();
+            List<ClubEntity> dbResults = db.clubDao().searchClubsByName(query); // Use Room DAO to search
             runOnUiThread(() -> {
-                if (logo != null) {
-                    logoView.setImageBitmap(logo);
+                if (!dbResults.isEmpty()) {
+                    clubsList.clear();
+                    clubsList.addAll(dbResults);
+                    adapter.notifyDataSetChanged();
+                    Toast.makeText(this, "Results loaded from database.", Toast.LENGTH_SHORT).show();
                 } else {
-                    logoView.setImageResource(R.drawable.placeholder_img); // Default image
+                    // Fallback to API if no results are found in the database
+                    Toast.makeText(this, "No results found..", Toast.LENGTH_SHORT).show();
                 }
             });
         }).start();
 
-        TextView clubDetails = new TextView(this);
-        clubDetails.setText(
-                "Club Name: " + club.strTeam + "\n" +
-                "League: " + club.strLeague + "\n" +
-                "Short Name: " + club.strTeamShort + "\n" +
-                "Year Formed: " + club.intFormedYear + "\n" +
-                "Stadium: " + club.strStadium + "\n" +
-                "Location: " + club.strLocation + "\n" +
-                "Website: " + club.strWebsite
-        );
-        clubDetails.setPadding(16, 16, 16, 16);
-
-        // Add ImageView and TextView to the container
-        resultsContainer.addView(logoView);
-        resultsContainer.addView(clubDetails);
     }
 
-    private void displayMessage(String message) {
-        resultsContainer.removeAllViews();
-        TextView messageView = new TextView(this);
-        messageView.setText(message);
-        messageView.setPadding(16, 16, 16, 16);
-        resultsContainer.addView(messageView);
-    }
-
-    private Bitmap loadImage(String urlString) {
-
-        if (urlString == null || urlString.isEmpty()) {
-            Log.e("SearchClubs_Activity", "null URL: " + urlString);  // keeps returning null
-            return null;
-        }
-
-        try {
-            URL url = new URL(urlString);
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setDoInput(true);
-            connection.connect();
-            InputStream input = connection.getInputStream();
-            return BitmapFactory.decodeStream(input);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+    private void loadImage(ImageView imageView, String url) {
+        new Thread(() -> {
+            try {
+                InputStream inputStream = new URL(url).openStream();
+                Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+                runOnUiThread(() -> imageView.setImageBitmap(bitmap));
+            } catch (Exception e) {
+                runOnUiThread(() -> imageView.setImageResource(R.drawable.placeholder_img));
+            }
+        }).start();
     }
     }
