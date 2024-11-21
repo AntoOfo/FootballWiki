@@ -7,24 +7,28 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 
 public class SearchClubs_Activity extends AppCompatActivity {
 
     private EditText searchEntry;
     private Button searchBtn;
-    private LinearLayout resultsContainer;
+    private ListView clubsListView;
 
-    private ClubDatabase db;
+    private List<ClubEntity> clubsList = new ArrayList<>();
+    private ArrayAdapter<String> adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,10 +37,11 @@ public class SearchClubs_Activity extends AppCompatActivity {
 
         searchEntry = findViewById(R.id.searchEntry);
         searchBtn = findViewById(R.id.searchBtn);
-        resultsContainer = findViewById(R.id.resultsContainer);
+        clubsListView = findViewById(R.id.clubsListView);
 
-        db = Room.databaseBuilder(getApplicationContext(),
-                ClubDatabase.class, "club-database").build();
+        adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1);
+
+        ClubEntity club = clubsList.get(position);
 
         searchBtn.setOnClickListener(v -> {
             String query = searchEntry.getText().toString().trim();
