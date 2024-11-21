@@ -6,8 +6,10 @@ import androidx.room.Room;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -29,9 +31,11 @@ public class ClubsByLeague_Activity extends AppCompatActivity {
     private EditText enterLeagueText;
     private Button retrieveBtn;
     private Button saveClubsBtn;
-    private TextView clubLeagueText;
+    private ListView clubsListView;
 
-    private List<ClubEntity> clubsList = new ArrayList<>();
+    private List<String> clubsList = new ArrayList<>();
+    private List<ClubEntity> clubsEntityList = new ArrayList<>();  // for saving to db
+    private ArrayAdapter<String> adapter;  // for displaying in list
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,7 +45,12 @@ public class ClubsByLeague_Activity extends AppCompatActivity {
         enterLeagueText = findViewById(R.id.enterLeagueText);
         retrieveBtn = findViewById(R.id.retrieveBtn);
         saveClubsBtn = findViewById(R.id.saveClubsBtn);
-        clubLeagueText = findViewById(R.id.clubLeagueText);
+        clubsListView = findViewById(R.id.clubsListView);
+
+        // adapter setup
+        adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, clubsList);
+
+        clubsListView.setAdapter(adapter);
 
         retrieveBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -54,7 +63,7 @@ public class ClubsByLeague_Activity extends AppCompatActivity {
                     getClubsByLeague(leagueName);
                 } else {
                     // Show a message if no league name is entered
-                    clubLeagueText.setText("Please enter a league name.");
+                    Toast.makeText(ClubsByLeague_Activity.this, "Please enter a league name!", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -63,7 +72,7 @@ public class ClubsByLeague_Activity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (!clubsList.isEmpty()) {
-                    saveClubs(clubsList);  // Save the clubs to the Room database
+                    saveClubs(clubsEntityList);  // Save the clubs to the Room database
                 } else {
                     Toast.makeText(ClubsByLeague_Activity.this, "No clubs to save.", Toast.LENGTH_SHORT).show();
                 }
@@ -86,29 +95,30 @@ public class ClubsByLeague_Activity extends AppCompatActivity {
                         // Check if "teams" array is in the response
                         if (response.has("teams")) {
                             JSONArray teamsArray = response.getJSONArray("teams");
-                            StringBuilder clubsInfo = new StringBuilder();
 
-                            clubsList.clear(); // Clear list to avoid duplicates
+                            clubsList.clear(); // clears list to avoid duplicates
+                            clubsEntityList.clear();  // clears entitys list too
 
                             // Iterate through each team and extract details
                             for (int i = 0; i < teamsArray.length(); i++) {
                                 JSONObject team = teamsArray.getJSONObject(i);
 
+                                // optString so it doesnt crash whole list and has fallback
                                 String idTeam = team.optString("idTeam", "N/A");
                                 String name = team.optString("strTeam", "N/A");
                                 String teamShort = team.optString("strTeamShort", "N/A");
-                                String alternate = team.optString("strAlternate", "N/A");
+                                String alternate = team.optString("strTeamAlternate", "N/A");
                                 String formedYear = team.optString("intFormedYear", "N/A");
                                 String strLeague = team.optString("strLeague", "N/A");
                                 String idLeague = team.optString("idLeague", "N/A");
                                 String stadium = team.optString("strStadium", "N/A");
                                 String keywords = team.optString("strKeywords", "N/A");
-                                String stadiumLocation = team.optString("strStadiumLocation", "N/A");
+                                String strLocation = team.optString("strLocation", "N/A");
                                 String stadiumCapacity = team.optString("intStadiumCapacity", "N/A");
                                 String website = team.optString("strWebsite", "N/A");
-                                String teamLogo = team.optString("strTeamLogo", "N/A");
+                                String strLogo = team.optString("strLogo", "N/A");
 
-                                // Create a new ClubEntity and add it to the list
+                                // creates new ClubEntity and add it to the list for db
                                 ClubEntity club = new ClubEntity();
                                 club.idTeam = idTeam;
                                 club.strTeam = name;
@@ -119,38 +129,43 @@ public class ClubsByLeague_Activity extends AppCompatActivity {
                                 club.idLeague = idLeague;
                                 club.strStadium = stadium;
                                 club.strKeywords = keywords;
-                                club.strLocation = stadiumLocation;
+                                club.strLocation = strLocation;
                                 club.intStadiumCapacity = stadiumCapacity;
                                 club.strWebsite = website;
-                                club.strLogo = teamLogo;
+                                club.strLogo = strLogo;
 
-                                clubsList.add(club);
+                                clubsEntityList.add(club);
 
-                                // Append details to display on UI
-                                clubsInfo.append("ID Team: ").append(idTeam).append("\n")
-                                        .append("Name: ").append(name).append("\n")
-                                        .append("Short Name: ").append(teamShort).append("\n")
-                                        .append("Alternate Names: ").append(alternate).append("\n")
-                                        .append("Formed Year: ").append(formedYear).append("\n")
-                                        .append("League: ").append(strLeague).append("\n")
-                                        .append("ID League: ").append(idLeague).append("\n")
-                                        .append("Stadium: ").append(stadium).append("\n")
-                                        .append("Keywords: ").append(keywords).append("\n")
-                                        .append("Stadium Location: ").append(stadiumLocation).append("\n")
-                                        .append("Stadium Capacity: ").append(stadiumCapacity).append("\n")
-                                        .append("Website: ").append(website).append("\n")
-                                        .append("Logo URL: ").append(teamLogo).append("\n\n");
+                                String clubDetails = "ID: " + idTeam + "\n" +
+                                        "Name: " + name + "\n" +
+                                        "Short Name: " + teamShort + "\n" +
+                                        "Alternate Names: " + alternate + "\n" +
+                                        "Formed Year: " + formedYear + "\n" +
+                                        "League: " + strLeague + "\n" +
+                                        "League ID: " + idLeague + "\n" +
+                                        "Stadium: " + stadium + "\n" +
+                                        "Keywords: " + keywords + "\n" +
+                                        "Stadium Location: " + strLocation + "\n" +
+                                        "Stadium Capacity: " + stadiumCapacity + "\n" +
+                                        "Website: " + website + "\n" +
+                                        "Logo URL: " + strLogo;
+
+                                clubsList.add(clubDetails);
                             }
 
-                            clubLeagueText.setText(clubsInfo.toString());
+                            // refresh list adapter
+                            adapter.notifyDataSetChanged();
                         } else {
-                            clubLeagueText.setText("No teams found for this league.");
+                            Toast.makeText(ClubsByLeague_Activity.this, "No teams found in this league!", Toast.LENGTH_SHORT).show();
                         }
                     } catch (Exception e) {
-                        clubLeagueText.setText("Error processing data. Try again.");
+                        Toast.makeText(ClubsByLeague_Activity.this, "Error occurred. Try again...", Toast.LENGTH_SHORT).show();
                     }
                 },
-                error -> clubLeagueText.setText("Error fetching data. Check your internet connection.")
+                error -> {
+                    Toast.makeText(ClubsByLeague_Activity.this, "Error occurred. Try again...", Toast.LENGTH_SHORT).show();
+                }
+
         );
 
         queue.add(jsonObjectRequest);
