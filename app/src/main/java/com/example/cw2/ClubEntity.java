@@ -9,28 +9,43 @@ public class ClubEntity {
     @PrimaryKey(autoGenerate = true)
     public int id; // Auto-generated primary key
 
-    @ColumnInfo(name = "teamName")
-    public String teamName;
+    @ColumnInfo(name = "idTeam")
+    public String idTeam;
 
-    @ColumnInfo(name = "teamShort")
-    public String teamShort;
+    @ColumnInfo(name = "strTeam")
+    public String strTeam;
 
-    @ColumnInfo(name = "formedYear")
-    public String formedYear;
+    @ColumnInfo(name = "strTeamShort")
+    public String strTeamShort;
 
-    @ColumnInfo(name = "stadium")
-    public String stadium;
+    @ColumnInfo(name = "strTeamAlternate")
+    public String strTeamAlternate;
 
-    @ColumnInfo(name = "location")
-    public String location;
+    @ColumnInfo(name = "intFormedYear")
+    public String intFormedYear;
 
-    @ColumnInfo(name = "website")
-    public String website;
+    @ColumnInfo(name = "strLeague")
+    public String strLeague;
 
-    @ColumnInfo(name = "leagueId")
-    public String leagueId;
+    @ColumnInfo(name = "idLeague")
+    public String idLeague;
 
-    @ColumnInfo(name = "logoUrl")
-    public String logoUrl;
+    @ColumnInfo(name = "strStadium")
+    public String strStadium;
+
+    @ColumnInfo(name = "strKeywords")
+    public String strKeywords;
+
+    @ColumnInfo(name = "strLocation")
+    public String strLocation;
+
+    @ColumnInfo(name = "intStadiumCapacity")
+    public String intStadiumCapacity;
+
+    @ColumnInfo(name = "strWebsite")
+    public String strWebsite;
+
+    @ColumnInfo(name = "strLogo")
+    public String strLogo;
 
 }

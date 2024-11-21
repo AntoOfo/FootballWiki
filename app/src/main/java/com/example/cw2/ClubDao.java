@@ -15,9 +15,9 @@ public interface ClubDao {
     List<ClubEntity> getAllClubs();
 
     @Query("SELECT * FROM ClubTable WHERE " +
-            "LOWER(teamName) LIKE '%' || LOWER(:query) || '%' OR " +
-            "LOWER(teamShort) LIKE '%' || LOWER(:query) || '%' OR " +
-            "LOWER(location) LIKE '%' || LOWER(:query) || '%'")
+            "LOWER(strTeam) LIKE '%' || LOWER(:query) || '%' OR " +
+            "LOWER(strTeamShort) LIKE '%' || LOWER(:query) || '%' OR " +
+            "LOWER(strLocation) LIKE '%' || LOWER(:query) || '%'")
     List<ClubEntity> searchClubsByName(String query);
 
 }

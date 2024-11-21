@@ -76,7 +76,7 @@ public class SearchClubs_Activity extends AppCompatActivity {
 
         // Load the logo (background thread)
         new Thread(() -> {
-            Bitmap logo = loadImage(club.logoUrl);
+            Bitmap logo = loadImage(club.strLogo);
             runOnUiThread(() -> {
                 if (logo != null) {
                     logoView.setImageBitmap(logo);
@@ -88,13 +88,13 @@ public class SearchClubs_Activity extends AppCompatActivity {
 
         TextView clubDetails = new TextView(this);
         clubDetails.setText(
-                "Club Name: " + club.teamName + "\n" +
-                "League: " + club.leagueId + "\n" +
-                "Short Name: " + club.teamShort + "\n" +
-                "Year Formed: " + club.formedYear + "\n" +
-                "Stadium: " + club.stadium + "\n" +
-                "Location: " + club.location + "\n" +
-                "Website: " + club.website
+                "Club Name: " + club.strTeam + "\n" +
+                "League: " + club.strLeague + "\n" +
+                "Short Name: " + club.strTeamShort + "\n" +
+                "Year Formed: " + club.intFormedYear + "\n" +
+                "Stadium: " + club.strStadium + "\n" +
+                "Location: " + club.strLocation + "\n" +
+                "Website: " + club.strWebsite
         );
         clubDetails.setPadding(16, 16, 16, 16);
 

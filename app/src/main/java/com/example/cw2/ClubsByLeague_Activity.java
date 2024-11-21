@@ -51,7 +51,7 @@ public class ClubsByLeague_Activity extends AppCompatActivity {
 
                 if (!leagueName.isEmpty()) {
                     // call method to get clubs from web
-                    getLeagueId(leagueName);
+                    getClubsByLeague(leagueName);
                 } else {
                     // Show a message if no league name is entered
                     clubLeagueText.setText("Please enter a league name.");
@@ -71,106 +71,88 @@ public class ClubsByLeague_Activity extends AppCompatActivity {
         });
     }
 
-    // grabs league id
-    private void getLeagueId(String leagueName) {
-        String url = "https://www.thesportsdb.com/api/v1/json/3/all_leagues.php";
-        RequestQueue queue = Volley.newRequestQueue(this);
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
-                Request.Method.GET, url, null,
-                response -> {
-                    try {
-                        // to find matching leagues
-                        JSONArray leaguesArray = response.getJSONArray("leagues");
-                        String idLeague = null;
-
-                        for (int i = 0;i < leaguesArray.length();i++) {
-                            JSONObject league = leaguesArray.getJSONObject(i);
-                            String name = league.optString("strLeague", "").trim();
-
-                            // check if the league name matches user input
-                            if (name.equalsIgnoreCase(leagueName)) {
-                                idLeague = league.optString("idLeague", null);   // store id
-                                break;
-                            }
-                        } if (idLeague != null) {
-                            getClubsByLeagueId(idLeague); // get club with league id
-                        } else {
-                            clubLeagueText.setText("League not found. Please try again.");
-                        }
-                    } catch (Exception e) {
-                        clubLeagueText.setText("There was a problem. Try again.");
-                    }
-                },
-                error -> {
-                    // Handle any network errors
-                    clubLeagueText.setText("There was a problem. Try again.");
-                }
-        ); queue.add(jsonObjectRequest);
-    }
-
     // get teams based on the league id
-    private void getClubsByLeagueId(String leagueId) {
-        String url = "https://www.thesportsdb.com/api/v1/json/3/lookup_all_teams.php?id=" + leagueId;
+    private void getClubsByLeague(String leagueName) {
+        // Replace spaces in league name with "%20" to match API format
+        String formattedLeagueName = leagueName.replace(" ", "%20");
+        String url = "https://www.thesportsdb.com/api/v1/json/3/search_all_teams.php?l=" + formattedLeagueName;
+
         RequestQueue queue = Volley.newRequestQueue(this);
+
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
                 Request.Method.GET, url, null,
                 response -> {
                     try {
-                        // check if teams array is in response
+                        // Check if "teams" array is in the response
                         if (response.has("teams")) {
                             JSONArray teamsArray = response.getJSONArray("teams");
                             StringBuilder clubsInfo = new StringBuilder();
 
-                            clubsList.clear();   // clear list for duplicates
+                            clubsList.clear(); // Clear list to avoid duplicates
 
-                            // go through teams and add them to list
+                            // Iterate through each team and extract details
                             for (int i = 0; i < teamsArray.length(); i++) {
                                 JSONObject team = teamsArray.getJSONObject(i);
 
-                                String teamName = team.getString("strTeam");
-                                String teamShort = team.getString("strTeamShort");
-                                String formedYear = team.getString("intFormedYear");
-                                String stadium = team.getString("strStadium");
-                                String location = team.getString("strLocation");
-                                String website = team.getString("strWebsite");
-                                String logoUrl = team.getString("strLogo");
-                                Log.d("Club Logo URL", "Logo URL: " + logoUrl);
+                                String idTeam = team.optString("idTeam", "N/A");
+                                String name = team.optString("strTeam", "N/A");
+                                String teamShort = team.optString("strTeamShort", "N/A");
+                                String alternate = team.optString("strAlternate", "N/A");
+                                String formedYear = team.optString("intFormedYear", "N/A");
+                                String strLeague = team.optString("strLeague", "N/A");
+                                String idLeague = team.optString("idLeague", "N/A");
+                                String stadium = team.optString("strStadium", "N/A");
+                                String keywords = team.optString("strKeywords", "N/A");
+                                String stadiumLocation = team.optString("strStadiumLocation", "N/A");
+                                String stadiumCapacity = team.optString("intStadiumCapacity", "N/A");
+                                String website = team.optString("strWebsite", "N/A");
+                                String teamLogo = team.optString("strTeamLogo", "N/A");
 
-                                // new entity w properties
+                                // Create a new ClubEntity and add it to the list
                                 ClubEntity club = new ClubEntity();
-                                club.teamName = teamName;
-                                club.teamShort = teamShort;
-                                club.formedYear = formedYear;
-                                club.stadium = stadium;
-                                club.location = location;
-                                club.website = website;
-                                club.leagueId = leagueId;
-                                club.logoUrl = logoUrl;
+                                club.idTeam = idTeam;
+                                club.strTeam = name;
+                                club.strTeamShort = teamShort;
+                                club.strTeamAlternate = alternate;
+                                club.intFormedYear = formedYear;
+                                club.strLeague = strLeague;
+                                club.idLeague = idLeague;
+                                club.strStadium = stadium;
+                                club.strKeywords = keywords;
+                                club.strLocation = stadiumLocation;
+                                club.intStadiumCapacity = stadiumCapacity;
+                                club.strWebsite = website;
+                                club.strLogo = teamLogo;
 
                                 clubsList.add(club);
 
-                                clubsInfo.append("Team Name: ").append(teamName).append("\n")
+                                // Append details to display on UI
+                                clubsInfo.append("ID Team: ").append(idTeam).append("\n")
+                                        .append("Name: ").append(name).append("\n")
                                         .append("Short Name: ").append(teamShort).append("\n")
+                                        .append("Alternate Names: ").append(alternate).append("\n")
                                         .append("Formed Year: ").append(formedYear).append("\n")
+                                        .append("League: ").append(strLeague).append("\n")
+                                        .append("ID League: ").append(idLeague).append("\n")
                                         .append("Stadium: ").append(stadium).append("\n")
-                                        .append("Location: ").append(location).append("\n")
+                                        .append("Keywords: ").append(keywords).append("\n")
+                                        .append("Stadium Location: ").append(stadiumLocation).append("\n")
+                                        .append("Stadium Capacity: ").append(stadiumCapacity).append("\n")
                                         .append("Website: ").append(website).append("\n")
-                                        .append("Logo URL: ").append(logoUrl).append("\n\n");
+                                        .append("Logo URL: ").append(teamLogo).append("\n\n");
                             }
 
                             clubLeagueText.setText(clubsInfo.toString());
-
                         } else {
                             clubLeagueText.setText("No teams found for this league.");
                         }
                     } catch (Exception e) {
-                        clubLeagueText.setText("Problem with finding teams. Try again.");
+                        clubLeagueText.setText("Error processing data. Try again.");
                     }
                 },
-                error -> {
-                    clubLeagueText.setText("Problem with finding teams. Try again.");
-                }
+                error -> clubLeagueText.setText("Error fetching data. Check your internet connection.")
         );
+
         queue.add(jsonObjectRequest);
     }
 
