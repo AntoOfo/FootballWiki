@@ -40,9 +40,11 @@ public class SearchClubs_Activity extends AppCompatActivity {
         searchBtn = findViewById(R.id.searchBtn);
         resultsListView = findViewById(R.id.resultsListView);
 
+        // adapter for club list
         adapter = new ArrayAdapter<ClubEntity>(this, 0, clubsList) {
             @Override
             public View getView(int position, View convertView, ViewGroup parent){
+                // reuse the convertView if not null, from online source
                 if (convertView == null) {
                     LayoutInflater inflater = LayoutInflater.from(getContext());
                     convertView = inflater.inflate(R.layout.item_clubs_result, parent, false);
@@ -51,6 +53,7 @@ public class SearchClubs_Activity extends AppCompatActivity {
                 ImageView clubLogo = convertView.findViewById(R.id.clubLogo);
                 TextView clubDetails = convertView.findViewById(R.id.clubDetails);
 
+                // get club data and put em to ui
                 ClubEntity club = clubsList.get(position);
                 if (club != null) {
                     String details = "ID: " + club.idTeam + "\n" +
@@ -78,6 +81,7 @@ public class SearchClubs_Activity extends AppCompatActivity {
         searchBtn.setOnClickListener(v -> {
             String query = searchEntry.getText().toString().trim();
 
+            // use search method if query isnt empty
             if (!query.isEmpty()) {
                 searchClubs(query);
             } else {
@@ -85,8 +89,8 @@ public class SearchClubs_Activity extends AppCompatActivity {
             }
         });
 
+        // restore clubsList on rotation
         if (savedInstanceState != null) {
-            // Restore clubsList
             ArrayList<ClubEntity> savedClubsList = (ArrayList<ClubEntity>) savedInstanceState.getSerializable("clubsList");
             if (savedClubsList != null) {
                 clubsList.clear();
@@ -96,6 +100,7 @@ public class SearchClubs_Activity extends AppCompatActivity {
         }
     }
 
+    // save clubs on rotation
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -104,18 +109,19 @@ public class SearchClubs_Activity extends AppCompatActivity {
         outState.putSerializable("clubsList", new ArrayList<>(clubsList));
     }
 
+    // search clubs by name
     private void searchClubs(String query) {
         new Thread(() -> {
             ClubDatabase db = Room.databaseBuilder(getApplicationContext(), ClubDatabase.class, "club-database").build();
             List<ClubEntity> dbResults = db.clubDao().searchClubsByName(query); // Use Room DAO to search
             runOnUiThread(() -> {
+                // if results found, update list+adapter
                 if (!dbResults.isEmpty()) {
                     clubsList.clear();
                     clubsList.addAll(dbResults);
                     adapter.notifyDataSetChanged();
                     Toast.makeText(this, "Results loaded from database.", Toast.LENGTH_SHORT).show();
                 } else {
-                    // Fallback to API if no results are found in the database
                     Toast.makeText(this, "No results found..", Toast.LENGTH_SHORT).show();
                 }
             });
@@ -127,6 +133,7 @@ public class SearchClubs_Activity extends AppCompatActivity {
     private void loadImage(ImageView imageView, String url) {
         new Thread(() -> {
             try {
+                // load image from url
                 InputStream inputStream = new URL(url).openStream();
                 Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
                 runOnUiThread(() -> imageView.setImageBitmap(bitmap));
