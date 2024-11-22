@@ -113,7 +113,7 @@ public class SearchClubs_Activity extends AppCompatActivity {
     private void searchClubs(String query) {
         new Thread(() -> {
             ClubDatabase db = Room.databaseBuilder(getApplicationContext(), ClubDatabase.class, "club-database").build();
-            List<ClubEntity> dbResults = db.clubDao().searchClubsByName(query); // Use Room DAO to search
+            List<ClubEntity> dbResults = db.clubDao().searchClubsByName(query); // use Room DAO to search
             runOnUiThread(() -> {
                 // if results found, update list+adapter
                 if (!dbResults.isEmpty()) {
