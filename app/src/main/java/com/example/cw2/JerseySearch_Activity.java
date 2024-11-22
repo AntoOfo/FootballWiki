@@ -75,6 +75,16 @@ public class JerseySearch_Activity extends AppCompatActivity {
 
         resultsListView.setAdapter(adapter);
 
+        if (savedInstanceState != null) {
+            // Restore jerseyList from savedInstanceState
+            ArrayList<String> savedJerseyList = (ArrayList<String>) savedInstanceState.getSerializable("jerseyList");
+            if (savedJerseyList != null) {
+                jerseyList.clear();
+                jerseyList.addAll(savedJerseyList);
+                adapter.notifyDataSetChanged();
+            }
+        }
+
         // Set the click listener for the search button
         searchBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -205,5 +215,13 @@ public class JerseySearch_Activity extends AppCompatActivity {
                 runOnUiThread(() -> imageView.setImageResource(R.drawable.placeholder_img));
             }
         }).start();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        // Save the jerseyList to the instance state
+        outState.putSerializable("jerseyList", new ArrayList<>(jerseyList));
     }
 }
