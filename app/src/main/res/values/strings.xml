@@ -8,9 +8,9 @@
     <string name="football_wiki">Football Wiki</string>
     <string name="add_leagues_to_db">Add Leagues to DB</string>
     <string name="search_for_clubs_by_league">Search for Clubs by League</string>
-    <string name="search_for_clubs">Search for Clubs</string>
-    <string name="searchJerseys">Search Jerseys</string>
-    <string name="enter_club_league">Enter Club/League...</string>
+    <string name="search_for_clubs">Search for Club Logo</string>
+    <string name="searchJerseys">Search for Club Jerseys</string>
+    <string name="enter_club_league">Enter Club...</string>
     <string name="search_forClubs">Search for Clubs</string>
     <string name="club_logo">Club Logo</string>
     <string name="jersey_image">Jersey image</string>
