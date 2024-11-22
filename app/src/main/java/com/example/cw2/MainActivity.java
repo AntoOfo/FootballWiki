@@ -16,7 +16,6 @@ public class MainActivity extends AppCompatActivity {
     // declaring league db and league dao
     private LeagueDatabase leagueDatabase;
     private LeagueDao leagueDao;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

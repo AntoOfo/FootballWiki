@@ -38,7 +38,6 @@ public class SearchClubs_Activity extends AppCompatActivity {
 
         searchEntry = findViewById(R.id.searchEntry);
         searchBtn = findViewById(R.id.searchBtn);
-        searchJerseyBtn = findViewById(R.id.searchJerseyBtn);
         resultsListView = findViewById(R.id.resultsListView);
 
         adapter = new ArrayAdapter<ClubEntity>(this, 0, clubsList) {
@@ -85,6 +84,24 @@ public class SearchClubs_Activity extends AppCompatActivity {
                 Toast.makeText(this, "Please enter a search term", Toast.LENGTH_SHORT).show();
             }
         });
+
+        if (savedInstanceState != null) {
+            // Restore clubsList
+            ArrayList<ClubEntity> savedClubsList = (ArrayList<ClubEntity>) savedInstanceState.getSerializable("clubsList");
+            if (savedClubsList != null) {
+                clubsList.clear();
+                clubsList.addAll(savedClubsList);
+                adapter.notifyDataSetChanged();
+            }
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        // Save the clubsList to the instance state
+        outState.putSerializable("clubsList", new ArrayList<>(clubsList));
     }
 
     private void searchClubs(String query) {

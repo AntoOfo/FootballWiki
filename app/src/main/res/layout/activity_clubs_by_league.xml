@@ -4,53 +4,67 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#BDC0BA"
     tools:context=".ClubsByLeague_Activity">
+
+    <EditText
+        android:id="@+id/enterLeagueText"
+        android:layout_width="244dp"
+        android:layout_height="48dp"
+        android:layout_gravity="center"
+        android:layout_marginTop="64dp"
+        android:ems="10"
+        android:hint="Enter league..."
+        android:inputType="text"
+        android:textColor="#000000"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <Button
         android:id="@+id/retrieveBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="56dp"
+        android:layout_marginTop="8dp"
+        android:backgroundTint="#1C1C1C"
         android:text="Retrieve Clubs"
+        android:textColor="#FDFEFA"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.062"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/enterLeagueText" />
-
-    <EditText
-        android:id="@+id/enterLeagueText"
-        android:layout_width="wrap_content"
-        android:layout_height="48dp"
-        android:layout_marginTop="64dp"
-        android:ems="10"
-        android:hint="Enter league..."
-        android:inputType="text"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.497"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
 
     <Button
         android:id="@+id/saveClubsBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="56dp"
-        android:text="Save Clubs to Database"
+        android:layout_marginTop="8dp"
+        android:backgroundTint="#1C1C1C"
+        android:text="Save to Database"
+        android:textColor="#FDFEFA"
+        android:textSize="16sp"
+        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.719"
-        app:layout_constraintStart_toEndOf="@+id/retrieveBtn"
+        app:layout_constraintHorizontal_bias="0.873"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/enterLeagueText" />
 
     <ListView
         android:id="@+id/clubsListView"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/saveClubsBtn"
+        android:background="#BDC0BA"
+        android:ellipsize="end"
+        android:maxLines="20"
         android:padding="16dp"
         android:scrollbars="vertical"
         android:textSize="14sp"
-        android:maxLines="20"
-        android:ellipsize="end" />
+        app:layout_constraintTop_toBottomOf="@+id/saveClubsBtn"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

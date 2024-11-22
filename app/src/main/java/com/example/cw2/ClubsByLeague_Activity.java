@@ -52,6 +52,16 @@ public class ClubsByLeague_Activity extends AppCompatActivity {
 
         clubsListView.setAdapter(adapter);
 
+        if (savedInstanceState != null) {
+            // restore list
+            clubsList = savedInstanceState.getStringArrayList("clubsList");
+            if (clubsList != null) {
+                adapter.clear();
+                adapter.addAll(clubsList);
+                adapter.notifyDataSetChanged();
+            }
+        }
+
         retrieveBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -78,6 +88,14 @@ public class ClubsByLeague_Activity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        // saves the clubsList to the instance state
+        outState.putStringArrayList("clubsList", new ArrayList<>(clubsList));
     }
 
     // get teams based on the league id
