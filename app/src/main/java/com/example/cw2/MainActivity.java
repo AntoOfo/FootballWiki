@@ -33,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
         addBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Predefined leagues
+                // leagues
                 List<LeagueEntity> leagues = new ArrayList<>();
                 leagues.add(new LeagueEntity(4330, "Scottish Premier League", "Soccer", "Scottish Premiership, SPFL"));
                 leagues.add(new LeagueEntity(4331, "German Bundesliga", "Soccer", "Bundesliga, Fußball-Bundesliga"));
@@ -44,11 +44,11 @@ public class MainActivity extends AppCompatActivity {
                 leagues.add(new LeagueEntity(4337, "Dutch Eredivisie", "Soccer", "Eredivisie"));
                 leagues.add(new LeagueEntity(4338, "Belgian Pro League", "Soccer", "Jupiler Pro League"));
 
-                // Insert the leagues into the database on a background thread
+                // put the leagues into db
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        leagueDao.addLeagues(leagues);  // Insert leagues
+                        leagueDao.addLeagues(leagues);
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {

@@ -36,7 +36,7 @@ public class JerseySearch_Activity extends AppCompatActivity {
     private EditText searchEntry;
     private Button searchBtn;
     private ListView resultsListView;
-    private List<String> jerseyList = new ArrayList<>();  // List to hold jersey URLs
+    private List<String> jerseyList = new ArrayList<>();  // List to hold jersey urls
     private ArrayAdapter<String> adapter;
 
     @Override
@@ -49,34 +49,35 @@ public class JerseySearch_Activity extends AppCompatActivity {
         searchBtn = findViewById(R.id.searchBtn);
         resultsListView = findViewById(R.id.resultsListView);
 
-        // Initialize the adapter for ListView to show jersey image URLs
+        // adapter for listview to hold jerseys
         adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_2, jerseyList) {
 
             @Override
             public View getView(int position, View convertView, ViewGroup parent) {
-                // Reuse the convertView if it's not null
+                // reuse the convertView if not null, from online source
                 if (convertView == null) {
                     convertView = LayoutInflater.from(getContext()).inflate(R.layout.item_jersey, parent, false);
                 }
 
-                // Find the ImageView for displaying the jersey image
+                // finds imageview for displaying the jersey image
                 ImageView jerseyImage = convertView.findViewById(R.id.jerseyImage);
 
-                // Get the jersey URL at the current position
+                // get jersey url at the current position
                 String jerseyUrl = getItem(position);
 
 
-                // Load and display the image in the ImageView
+                // load the image in the imageview
                 loadImage(jerseyImage, jerseyUrl);
 
                 return convertView;
             }
         };
 
+        // set adapter to listview
         resultsListView.setAdapter(adapter);
 
+        // restore list on rotation
         if (savedInstanceState != null) {
-            // Restore jerseyList from savedInstanceState
             ArrayList<String> savedJerseyList = (ArrayList<String>) savedInstanceState.getSerializable("jerseyList");
             if (savedJerseyList != null) {
                 jerseyList.clear();
@@ -85,14 +86,13 @@ public class JerseySearch_Activity extends AppCompatActivity {
             }
         }
 
-        // Set the click listener for the search button
         searchBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String query = searchEntry.getText().toString().trim();
 
                 if (!query.isEmpty()) {
-                    searchForTeam(query);  // Call method to search for the team by name
+                    searchForTeam(query);  // call method to search for the team name
                 } else {
                     Toast.makeText(JerseySearch_Activity.this, "Please enter a club name to search for jerseys", Toast.LENGTH_SHORT).show();
                 }
@@ -100,12 +100,12 @@ public class JerseySearch_Activity extends AppCompatActivity {
         });
     }
 
-    // Method to search for a team based on the input query
+    // method to search for a team from input
     private void searchForTeam(String query) {
         String eplTeamsUrl = "https://www.thesportsdb.com/api/v1/json/3/search_all_teams.php?l=English%20Premier%20League";
         RequestQueue queue = Volley.newRequestQueue(JerseySearch_Activity.this);
 
-        // Request to fetch all EPL teams
+        // request to get EPL teams
         JsonObjectRequest teamsRequest = new JsonObjectRequest(eplTeamsUrl, null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
@@ -113,7 +113,7 @@ public class JerseySearch_Activity extends AppCompatActivity {
                     JSONArray teamsArray = response.getJSONArray("teams");
                     boolean teamFound = false;
 
-                    // Iterate through the list of teams to check if any matches the query
+                    // go through list to check for matches
                     for (int i = 0; i < teamsArray.length(); i++) {
                         JSONObject team = teamsArray.getJSONObject(i);
                         String teamName = team.getString("strTeam");
@@ -122,13 +122,13 @@ public class JerseySearch_Activity extends AppCompatActivity {
                             String teamId = team.getString("idTeam");
                             teamFound = true;
 
-                            // Now that we have the team ID, call to fetch jersey data
-                            fetchJerseyImage(teamId);
+                            // grab jersey image for team
+                            getJerseyImage(teamId);
                             break;
                         }
                     }
 
-                    if (!teamFound) {
+                    if (!teamFound) {    // if no teams found
                         Toast.makeText(JerseySearch_Activity.this, "No teams found matching your search", Toast.LENGTH_SHORT).show();
                     }
 
@@ -144,16 +144,16 @@ public class JerseySearch_Activity extends AppCompatActivity {
             }
         });
 
-        // Add the request to the request queue
+        // add request to request queue
         queue.add(teamsRequest);
     }
 
-    // Method to fetch the jersey image using the team's idTeam
-    private void fetchJerseyImage(String teamId) {
+    // grab jersey image using idTeam
+    private void getJerseyImage(String teamId) {
         String jerseyUrl = "https://www.thesportsdb.com/api/v1/json/3/lookupequipment.php?id=" + teamId;
         RequestQueue queue = Volley.newRequestQueue(JerseySearch_Activity.this);
 
-        // Request to fetch jersey data for the team
+        // request to get jersey data
         JsonObjectRequest jerseyRequest = new JsonObjectRequest(jerseyUrl, null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
@@ -161,15 +161,22 @@ public class JerseySearch_Activity extends AppCompatActivity {
                     JSONArray equipmentArray = response.getJSONArray("equipment");
 
                     if (equipmentArray.length() > 0) {
-                        // Get the first jersey (or you can adjust logic to show multiple)
-                        JSONObject jersey = equipmentArray.getJSONObject(0);
-                        String strEquipment = jersey.getString("strEquipment"); // The jersey image URL is in strThumb
+                        // go through each jersey to check its season
+                        for (int i = 0; i < equipmentArray.length(); i++) {
+                            JSONObject jersey = equipmentArray.getJSONObject(i);
+                            String strSeason = jersey.getString("strSeason");
 
-                        if (strEquipment != null && !strEquipment.isEmpty()) {
-                            // Add the jersey image URL to the list and update the ListView
-                            addJerseyToList(strEquipment);
-                        } else {
-                            Toast.makeText(JerseySearch_Activity.this, "No jersey image found", Toast.LENGTH_SHORT).show();
+                            // check if season is either 2024-2025 or 2023-2024
+                            if (strSeason.equals("2024-2025") || strSeason.equals("2023-2024")) {
+                                String strEquipment = jersey.getString("strEquipment");
+
+                                if (strEquipment != null && !strEquipment.isEmpty()) {
+                                    // add jersey image url to list and update
+                                    addJerseyToList(strEquipment);
+                                } else {
+                                    Toast.makeText(JerseySearch_Activity.this, "No jersey image found", Toast.LENGTH_SHORT).show();
+                                }
+                            }
                         }
                     } else {
                         Toast.makeText(JerseySearch_Activity.this, "No jersey data found for this team", Toast.LENGTH_SHORT).show();
@@ -187,41 +194,40 @@ public class JerseySearch_Activity extends AppCompatActivity {
             }
         });
 
-        // Add the request to the request queue
+        // add request to the request queue
         queue.add(jerseyRequest);
     }
 
-    // Method to update the ListView with the jersey image URL
+    // update listview with the jersey image URL
     private void addJerseyToList(String jerseyImageUrl) {
-            jerseyList.add(jerseyImageUrl);  // Add jersey image URL to the list
+            jerseyList.add(jerseyImageUrl);  // add jersey image url to list
 
             runOnUiThread(() -> {
 
-            adapter.notifyDataSetChanged();  // Notify adapter to refresh the ListView
+            adapter.notifyDataSetChanged();  // refresh the listview
         });
     }
 
     private void loadImage(ImageView imageView, String url) {
         new Thread(() -> {
             try {
-                // Open connection and get the InputStream from the image URL
+                // get the inputstream from the image url
                 InputStream inputStream = new URL(url).openStream();
-                // Decode the InputStream into a Bitmap
+                // decode it into a bitmap
                 Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
-                // Set the Bitmap to the ImageView on the UI thread
+                // set bitmap to the imageview on ui thread
                 runOnUiThread(() -> imageView.setImageBitmap(bitmap));
             } catch (Exception e) {
-                // In case of error, set a placeholder image
                 runOnUiThread(() -> imageView.setImageResource(R.drawable.placeholder_img));
             }
         }).start();
     }
 
+    // save the jerseyList to the instance state on rotation
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
-        // Save the jerseyList to the instance state
         outState.putSerializable("jerseyList", new ArrayList<>(jerseyList));
     }
 }

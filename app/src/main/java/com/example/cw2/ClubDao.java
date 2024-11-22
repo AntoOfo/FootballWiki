@@ -14,6 +14,7 @@ public interface ClubDao {
     @Query("SELECT* FROM ClubTable")
     List<ClubEntity> getAllClubs();
 
+    // clubs name, short and location case insensitive
     @Query("SELECT * FROM ClubTable WHERE " +
             "LOWER(strTeam) LIKE '%' || LOWER(:query) || '%' OR " +
             "LOWER(strTeamShort) LIKE '%' || LOWER(:query) || '%' OR " +

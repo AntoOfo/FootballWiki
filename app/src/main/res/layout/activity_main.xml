@@ -23,7 +23,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="48dp"
                 android:fontFamily="@font/alatsi"
-                android:text="Football Wiki"
+                android:text="@string/football_wiki"
                 android:textColor="#1C1C1C"
                 android:textSize="48sp"
                 android:textStyle="bold" />
@@ -42,7 +42,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="68dp"
                 android:backgroundTint="#1C1C1C"
-                android:text="Add Leagues to DB"
+                android:text="@string/add_leagues_to_db"
                 android:textColor="#FEFFFB"
                 android:textSize="20sp"
                 android:textStyle="bold" />
@@ -53,7 +53,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="60dp"
                 android:backgroundTint="#1C1C1C"
-                android:text="Search for Clubs by League"
+                android:text="@string/search_for_clubs_by_league"
                 android:textColor="#FDFEFA"
                 android:textSize="20sp"
                 android:textStyle="bold" />
@@ -64,7 +64,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="60dp"
                 android:backgroundTint="#1C1C1C"
-                android:text="Search for Clubs"
+                android:text="@string/search_for_clubs"
                 android:textColor="#FDFEFA"
                 android:textSize="20sp"
                 android:textStyle="bold" />
@@ -75,7 +75,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="60dp"
                 android:backgroundTint="#1C1C1C"
-                android:text="Search Jerseys"
+                android:text="@string/searchJerseys"
                 android:textColor="#FDFEFA"
                 android:textSize="20sp"
                 android:textStyle="bold" />

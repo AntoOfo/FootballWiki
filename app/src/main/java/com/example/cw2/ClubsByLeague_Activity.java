@@ -33,6 +33,7 @@ public class ClubsByLeague_Activity extends AppCompatActivity {
     private Button saveClubsBtn;
     private ListView clubsListView;
 
+    // lists to hold club details and entities
     private List<String> clubsList = new ArrayList<>();
     private List<ClubEntity> clubsEntityList = new ArrayList<>();  // for saving to db
     private ArrayAdapter<String> adapter;  // for displaying in list
@@ -47,13 +48,13 @@ public class ClubsByLeague_Activity extends AppCompatActivity {
         saveClubsBtn = findViewById(R.id.saveClubsBtn);
         clubsListView = findViewById(R.id.clubsListView);
 
-        // adapter setup
+        // adapter setup for listview
         adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, clubsList);
 
         clubsListView.setAdapter(adapter);
 
+        // restore list on rotation
         if (savedInstanceState != null) {
-            // restore list
             clubsList = savedInstanceState.getStringArrayList("clubsList");
             if (clubsList != null) {
                 adapter.clear();
@@ -65,14 +66,12 @@ public class ClubsByLeague_Activity extends AppCompatActivity {
         retrieveBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Get the league name entered by the user
+                // get the league name by the user
                 String leagueName = enterLeagueText.getText().toString().trim();
 
                 if (!leagueName.isEmpty()) {
-                    // call method to get clubs from web
-                    getClubsByLeague(leagueName);
+                    getClubsByLeague(leagueName);   // call method to get clubs from web
                 } else {
-                    // Show a message if no league name is entered
                     Toast.makeText(ClubsByLeague_Activity.this, "Please enter a league name!", Toast.LENGTH_SHORT).show();
                 }
             }
@@ -82,7 +81,7 @@ public class ClubsByLeague_Activity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (!clubsList.isEmpty()) {
-                    saveClubs(clubsEntityList);  // Save the clubs to the Room database
+                    saveClubs(clubsEntityList);  // save the clubs to room db
                 } else {
                     Toast.makeText(ClubsByLeague_Activity.this, "No clubs to save.", Toast.LENGTH_SHORT).show();
                 }
@@ -90,38 +89,38 @@ public class ClubsByLeague_Activity extends AppCompatActivity {
         });
     }
 
+    // saves the clubsList to the instance state on rotation
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
-        // saves the clubsList to the instance state
         outState.putStringArrayList("clubsList", new ArrayList<>(clubsList));
     }
 
-    // get teams based on the league id
+    // get teams based on league name
     private void getClubsByLeague(String leagueName) {
-        // Replace spaces in league name with "%20" to match API format
+        // format spaces with %20 for url
         String formattedLeagueName = leagueName.replace(" ", "%20");
         String url = "https://www.thesportsdb.com/api/v1/json/3/search_all_teams.php?l=" + formattedLeagueName;
 
         RequestQueue queue = Volley.newRequestQueue(this);
 
+        // get request to get club data from api
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
                 Request.Method.GET, url, null,
                 response -> {
                     try {
-                        // Check if "teams" array is in the response
-                        if (response.has("teams")) {
+                        if (response.has("teams")) {        // check if teams array is in response
                             JSONArray teamsArray = response.getJSONArray("teams");
 
                             clubsList.clear(); // clears list to avoid duplicates
                             clubsEntityList.clear();  // clears entitys list too
 
-                            // Iterate through each team and extract details
+                            // go through each team and get details
                             for (int i = 0; i < teamsArray.length(); i++) {
                                 JSONObject team = teamsArray.getJSONObject(i);
 
-                                // optString so it doesnt crash whole list and has fallback
+                                // optString so it doesnt crash whole list and has a fallback
                                 String idTeam = team.optString("idTeam", "N/A");
                                 String name = team.optString("strTeam", "N/A");
                                 String teamShort = team.optString("strTeamShort", "N/A");
@@ -186,21 +185,18 @@ public class ClubsByLeague_Activity extends AppCompatActivity {
 
         );
 
-        queue.add(jsonObjectRequest);
+        queue.add(jsonObjectRequest);  // add request to volley queue
     }
 
     private void saveClubs(List<ClubEntity> clubs) {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                // Build the database instance
+                // build db instance
                 ClubDatabase db = Room.databaseBuilder(getApplicationContext(),
                         ClubDatabase.class, "club-database").build();
 
-                // Insert all clubs into the database
                 db.clubDao().insertAll(clubs);
-
-                // Notify the user after saving in the UI thread
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {

@@ -10,10 +10,10 @@ import java.util.List;
 @Dao
 public interface LeagueDao {
 
-    // insert one league  // ignore if any exists based off id
+    // insert one league  and ignore if any exists based off id
     @Insert(onConflict = OnConflictStrategy.IGNORE) void addLeague(LeagueEntity league);
 
-    // insert multiple leagues / ignore if any already exist
+    // insert multiple leagues and ignore if any already exist
     @Insert(onConflict = OnConflictStrategy.IGNORE) void addLeagues(List<LeagueEntity> leagues);
 
 

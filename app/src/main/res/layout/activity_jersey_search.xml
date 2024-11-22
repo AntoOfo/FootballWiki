@@ -14,13 +14,14 @@
         android:layout_gravity="center"
         android:layout_marginTop="52dp"
         android:ems="10"
-        android:hint="Enter EPL Club..."
+        android:hint="@string/enter_epl_club"
         android:inputType="text"
         android:textColor="#000000"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        android:importantForAutofill="no" />
 
     <Button
         android:id="@+id/searchBtn"
@@ -28,7 +29,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:backgroundTint="#1C1C1C"
-        android:text="Search Jerseys"
+        android:text="@string/search_jerseys"
         android:textColor="#FDFEFA"
         android:textSize="16sp"
         android:textStyle="bold"

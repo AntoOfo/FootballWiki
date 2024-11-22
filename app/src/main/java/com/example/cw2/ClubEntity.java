@@ -7,7 +7,7 @@ import androidx.room.PrimaryKey;
 @Entity(tableName = "ClubTable")
 public class ClubEntity {
     @PrimaryKey(autoGenerate = true)
-    public int id; // Auto-generated primary key
+    public int id;
 
     @ColumnInfo(name = "idTeam")
     public String idTeam;
