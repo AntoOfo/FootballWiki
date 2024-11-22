@@ -34,8 +34,8 @@ public class ClubsByLeague_Activity extends AppCompatActivity {
     private ListView clubsListView;
 
     // lists to hold club details and entities
-    private List<String> clubsList = new ArrayList<>();
-    private List<ClubEntity> clubsEntityList = new ArrayList<>();  // for saving to db
+    List<String> clubsList = new ArrayList<>();
+    List<ClubEntity> clubsEntityList = new ArrayList<>();  // for saving to db
     private ArrayAdapter<String> adapter;  // for displaying in list
 
     @Override
@@ -98,7 +98,7 @@ public class ClubsByLeague_Activity extends AppCompatActivity {
     }
 
     // get teams based on league name
-    private void getClubsByLeague(String leagueName) {
+    void getClubsByLeague(String leagueName) {
         // format spaces with %20 for url
         String formattedLeagueName = leagueName.replace(" ", "%20");
         String url = "https://www.thesportsdb.com/api/v1/json/3/search_all_teams.php?l=" + formattedLeagueName;
@@ -188,7 +188,7 @@ public class ClubsByLeague_Activity extends AppCompatActivity {
         queue.add(jsonObjectRequest);  // add request to volley queue
     }
 
-    private void saveClubs(List<ClubEntity> clubs) {
+    void saveClubs(List<ClubEntity> clubs) {
         new Thread(new Runnable() {
             @Override
             public void run() {

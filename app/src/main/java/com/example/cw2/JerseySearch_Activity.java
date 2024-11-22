@@ -36,7 +36,7 @@ public class JerseySearch_Activity extends AppCompatActivity {
     private EditText searchEntry;
     private Button searchBtn;
     private ListView resultsListView;
-    private List<String> jerseyList = new ArrayList<>();  // List to hold jersey urls
+    List<String> jerseyList = new ArrayList<>();  // List to hold jersey urls
     private ArrayAdapter<String> adapter;
 
     @Override
@@ -101,7 +101,7 @@ public class JerseySearch_Activity extends AppCompatActivity {
     }
 
     // method to search for a team from input
-    private void searchForTeam(String query) {
+    void searchForTeam(String query) {
         String eplTeamsUrl = "https://www.thesportsdb.com/api/v1/json/3/search_all_teams.php?l=English%20Premier%20League";
         RequestQueue queue = Volley.newRequestQueue(JerseySearch_Activity.this);
 

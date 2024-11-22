@@ -28,7 +28,7 @@ public class SearchClubs_Activity extends AppCompatActivity {
     private Button searchJerseyBtn;
     private ListView resultsListView;
 
-    private List<ClubEntity> clubsList = new ArrayList<>();
+    List<ClubEntity> clubsList = new ArrayList<>();
     private ArrayAdapter<ClubEntity> adapter;
 
     @Override
@@ -110,7 +110,7 @@ public class SearchClubs_Activity extends AppCompatActivity {
     }
 
     // search clubs by name
-    private void searchClubs(String query) {
+    void searchClubs(String query) {
         new Thread(() -> {
             ClubDatabase db = Room.databaseBuilder(getApplicationContext(), ClubDatabase.class, "club-database").build();
             List<ClubEntity> dbResults = db.clubDao().searchClubsByName(query); // use Room DAO to search
