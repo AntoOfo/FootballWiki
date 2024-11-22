@@ -25,7 +25,7 @@ public class MainActivity extends AppCompatActivity {
         Button addBtn = (Button) findViewById(R.id.addBtn);
         Button searchLeagueBtn = (Button) findViewById(R.id.searchLeagueBtn);
         Button searchClubBtn = (Button) findViewById(R.id.searchClubBtn);
-        Button wideSearchBtn = (Button) findViewById(R.id.wideSearchBtn);
+        Button wideSearchBtn = (Button) findViewById(R.id.jerseySearchBtn);
 
         // initialise db and dao
         leagueDatabase = LeagueDatabase.getInstance(getApplicationContext());
@@ -78,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
         wideSearchBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this, WideSearch_Activity.class));
+                startActivity(new Intent(MainActivity.this, JerseySearch_Activity.class));
             }
         });
     }

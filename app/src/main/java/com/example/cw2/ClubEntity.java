@@ -48,4 +48,6 @@ public class ClubEntity {
     @ColumnInfo(name = "strLogo")
     public String strLogo;
 
+
+
 }

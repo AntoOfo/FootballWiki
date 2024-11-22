@@ -1,14 +1,11 @@
 package com.example.cw2;
 
-import static java.security.AccessController.getContext;
-
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.room.Room;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,29 +13,19 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.Volley;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
-
 import java.io.InputStream;
-import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-
 public class SearchClubs_Activity extends AppCompatActivity {
 
     private EditText searchEntry;
     private Button searchBtn;
+    private Button searchJerseyBtn;
     private ListView resultsListView;
 
     private List<ClubEntity> clubsList = new ArrayList<>();
@@ -51,39 +38,40 @@ public class SearchClubs_Activity extends AppCompatActivity {
 
         searchEntry = findViewById(R.id.searchEntry);
         searchBtn = findViewById(R.id.searchBtn);
+        searchJerseyBtn = findViewById(R.id.searchJerseyBtn);
         resultsListView = findViewById(R.id.resultsListView);
 
         adapter = new ArrayAdapter<ClubEntity>(this, 0, clubsList) {
             @Override
             public View getView(int position, View convertView, ViewGroup parent){
-            if (convertView == null) {
-                LayoutInflater inflater = LayoutInflater.from(getContext());
-                convertView = inflater.inflate(R.layout.item_clubs_result, parent, false);
+                if (convertView == null) {
+                    LayoutInflater inflater = LayoutInflater.from(getContext());
+                    convertView = inflater.inflate(R.layout.item_clubs_result, parent, false);
+                }
+
+                ImageView clubLogo = convertView.findViewById(R.id.clubLogo);
+                TextView clubDetails = convertView.findViewById(R.id.clubDetails);
+
+                ClubEntity club = clubsList.get(position);
+                if (club != null) {
+                    String details = "ID: " + club.idTeam + "\n" +
+                            "Name: " + club.strTeam + "\n" +
+                            "Short Name: " + club.strTeamShort + "\n" +
+                            "Alternate Names: " + club.strTeamAlternate + "\n" +
+                            "Formed Year: " + club.intFormedYear + "\n" +
+                            "League: " + club.strLeague + "\n" +
+                            "League ID: " + club.idLeague + "\n" +
+                            "Stadium: " + club.strStadium + "\n" +
+                            "Keywords: " + club.strKeywords + "\n" +
+                            "Location: " + club.strLocation + "\n" +
+                            "Stadium Capacity: " + club.intStadiumCapacity + "\n" +
+                            "Website: " + club.strWebsite;
+                    clubDetails.setText(details);
+                    loadImage(clubLogo, club.strLogo);
+                }
+
+                return convertView;
             }
-
-            ImageView clubLogo = convertView.findViewById(R.id.clubLogo);
-            TextView clubDetails = convertView.findViewById(R.id.clubDetails);
-
-            ClubEntity club = clubsList.get(position);
-            if (club != null) {
-                String details = "ID: " + club.idTeam + "\n" +
-                        "Name: " + club.strTeam + "\n" +
-                        "Short Name: " + club.strTeamShort + "\n" +
-                        "Alternate Names: " + club.strTeamAlternate + "\n" +
-                        "Formed Year: " + club.intFormedYear + "\n" +
-                        "League: " + club.strLeague + "\n" +
-                        "League ID: " + club.idLeague + "\n" +
-                        "Stadium: " + club.strStadium + "\n" +
-                        "Keywords: " + club.strKeywords + "\n" +
-                        "Location: " + club.strLocation + "\n" +
-                        "Stadium Capacity: " + club.intStadiumCapacity + "\n" +
-                        "Website: " + club.strWebsite;
-                clubDetails.setText(details);
-                loadImage(clubLogo, club.strLogo);
-            }
-
-            return convertView;
-        }
         };
 
         resultsListView.setAdapter(adapter);
@@ -118,6 +106,7 @@ public class SearchClubs_Activity extends AppCompatActivity {
 
     }
 
+
     private void loadImage(ImageView imageView, String url) {
         new Thread(() -> {
             try {
@@ -129,4 +118,5 @@ public class SearchClubs_Activity extends AppCompatActivity {
             }
         }).start();
     }
-    }
+}
+
